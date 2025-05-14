@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciador</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Cadastro de Alunos</h1>
+    <form method="POST" action="/cadastrar_aluno">
+        Nome: <input type="text" name="nome">
+        Matrícula: <input type="text" name="matricula">
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <h1>Cadastro de Máquinas</h1>
+    <form method="POST" action="/cadastrar_maquina">
+        IP da máquina: <input type="text" name="ip">
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <h1>Vincular Aluno à Máquina</h1>
+    <form method="POST" action="/vincular">
+        Aluno:
+        <select name="aluno_id">
+            {% for aluno in alunos %}<option value="{{ aluno.id }}">{{ aluno.nome }}</option>{% endfor %}
+        </select>
+        Máquina:
+        <select name="maquina_id">
+            {% for maquina in maquinas %}<option value="{{ maquina.id }}">{{ maquina.ip }}</option>{% endfor %}
+        </select>
+        <button type="submit">Vincular</button>
+    </form>
+
+    <h2>Controle</h2>
+    {% for maquina in maquinas %}
+        <p>
+            <strong>{{ maquina.ip }}</strong>
+            {% if maquina.aluno %} - {{ maquina.aluno.nome }} ({{ maquina.aluno.tempo_restante }} min restantes)
+            <a href="/usar/{{ maquina.id }}/30">Liberar por 30min</a>
+            <a href="/resetar/{{ maquina.aluno.id }}">Resetar tempo</a>
+            <form method="POST" action="/editar_tempo/{{ maquina.aluno.id }}" style="display:inline">
+                <input type="number" name="tempo" min="0" placeholder="Minutos">
+                <button type="submit">Editar Tempo</button>
+            </form>
+            <a href="/desvincular/{{ maquina.id }}">Desvincular</a>
+            {% endif %}
+            <a href="/bloquear/{{ maquina.id }}">Bloquear</a>
+            <a href="/liberar/{{ maquina.id }}">Liberar</a>
+        </p>
+    {% endfor %}
+</body>
+</html>
