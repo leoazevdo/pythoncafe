@@ -1,23 +1,37 @@
-from flask import Flask, render_template_string
+from flask import Flask
 import threading
 import tkinter as tk
+import subprocess
 import os
+import signal
 
 app = Flask(__name__)
 bloqueado = True
+xtrlock_proc = None
 
 def exibir_tela_bloqueio():
     def loop_bloqueio():
+        global xtrlock_proc
+
         root = tk.Tk()
         root.attributes('-fullscreen', True)
         root.configure(bg='black')
         root.attributes('-topmost', True)
+        root.protocol("WM_DELETE_WINDOW", lambda: None)
 
         label = tk.Label(root, text="🔒\n MÁQUINA BLOQUEADA", font=("Arial", 50), fg="white", bg="black")
         label.pack(expand=True)
 
+        # Inicia xtrlock para bloquear teclado/mouse
+        try:
+            xtrlock_proc = subprocess.Popen(['xtrlock'])
+        except Exception as e:
+            print("Erro ao iniciar xtrlock:", e)
+
         def verificar_bloqueio():
             if not bloqueado:
+                if xtrlock_proc:
+                    xtrlock_proc.terminate()
                 root.destroy()
             else:
                 root.after(1000, verificar_bloqueio)
